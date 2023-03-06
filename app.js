@@ -22,7 +22,7 @@ function getCartProductsLength() {
     return getCartProducts() ? Object.keys(getCartProducts()).length : 0;
 }
 // display a single card 
-function displayCard(product) {
+function displayCard(product, displayQuickView) {
     return (
         `<div class="card" data-index=${product.id}>
                 <div class="image">
@@ -38,7 +38,8 @@ function displayCard(product) {
                     product.added_to_cart ? 'Remove from cart' : 'Add to cart'
                 }
                 </button>
-                    <button type='button' onclick="displayQuickView(${product.id})"> Quick view</button>
+                    <button type='button' onclick="displayQuickView(${product.id})" style="display:${displayQuickView}"> Quick view</button>
+                    
                 </div>
         </div>`
     )
@@ -104,21 +105,26 @@ function displayItemsOnCartList() {
     let items = getCartProducts();
     const elem = document.createElement("div");
     cartList.innerHTML = '';
-    Object.keys(items).forEach(function(key) {
-        let item = `
-        <div class="item">
-        <div class="image">
-            <img src=${items[key]?.product_image} />
+    if (!getCartProductsLength()) {
+        console.log("No cart")
+        elem.textContent = "No products in cart"
+    } else {
+        Object.keys(items).forEach(function(key) {
+            let item = `
+            <div class="item">
+            <div class="image">
+                <img src=${items[key]?.product_image} />
+            </div>
+            <div>
+                <p class="product-name">${items[key]?.product_name} </p>
+                <span class="product-price">${items[key]?.product_price} $</span>
+                <button onclick="removeFromCart(${items[key]?.id});displayCartList()">Remove </button>
+            </div>
         </div>
-        <div>
-            <p class="product-name">${items[key]?.product_name} </p>
-            <span class="product-price">${items[key]?.product_price} $</span>
-            <button onclick="removeFromCart(${items[key]?.id});displayCartList()">Remove </button>
-        </div>
-    </div>
-        `;
-        elem.innerHTML += item
-    });
+            `;
+            elem.innerHTML += item
+        });
+    }
     cartList.appendChild(elem);
 }
 // update page information after a change 
@@ -136,7 +142,7 @@ overlay.onclick = () => overlay.style.display = 'none'
 function displayQuickView(id) {
     console.log("clicks")
     overlay.style.display = 'block'
-    quickView.innerHTML = displayCard(products[id]);
+    quickView.innerHTML = displayCard(products[id], "none");
 }
 
 displayProducts(getLocalStorageProducts());
